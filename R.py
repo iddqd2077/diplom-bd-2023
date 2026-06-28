@@ -1,8 +1,9 @@
 import sys
 import sqlite3
-import matplotlib.pyplot as plt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout
 from PyQt5.QtGui import QIcon
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 class Window_R(QMainWindow):
     def __init__(self):
@@ -12,14 +13,18 @@ class Window_R(QMainWindow):
     def initUI(self):
         self.setWindowTitle('График')
         self.setGeometry(400, 400, 500, 500)
-        plt.title('Прибыль')
-        plt.xlabel('Время')
-        plt.ylabel('Деньги')
         # создаем виджет для графика
         graph_widget = QWidget(self)
-        graph_widget.setLayout(QVBoxLayout(graph_widget))
-        graph_widget.layout().setContentsMargins(0, 0, 0, 0)
+        graph_layout = QVBoxLayout(graph_widget)
+        graph_layout.setContentsMargins(0, 0, 0, 0)
         self.setCentralWidget(graph_widget)
+        figure = Figure()
+        canvas = FigureCanvas(figure)
+        graph_layout.addWidget(canvas)
+        axis = figure.add_subplot(111)
+        axis.set_title('Прибыль')
+        axis.set_xlabel('Время')
+        axis.set_ylabel('Деньги')
         # подключаемся к базе данных SQL
         conn = sqlite3.connect('DataBase.db')
         cur = conn.cursor()
@@ -36,11 +41,10 @@ class Window_R(QMainWindow):
         values = [row[1] for row in data]
 
         # создаем график
-        plt.plot(dates, values, label ="Mark", marker ="o")
-        plt.xticks(rotation=45, ha='right')
-
-        # добавляем график на виджет
-        graph_widget.layout().addWidget(plt.gcf().canvas)
+        axis.plot(dates, values, label="Mark", marker="o")
+        axis.tick_params(axis='x', rotation=45)
+        figure.tight_layout()
+        canvas.draw()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

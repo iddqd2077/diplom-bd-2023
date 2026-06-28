@@ -1,3 +1,13 @@
+import os
+
+def configure_qt_plugins():
+    plugin_root = os.path.join(os.path.dirname(__file__), ".venv", "Lib", "site-packages", "PyQt5", "Qt5", "plugins")
+    if os.path.isdir(plugin_root):
+        os.environ["QT_PLUGIN_PATH"] = plugin_root
+        os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = os.path.join(plugin_root, "platforms")
+
+configure_qt_plugins()
+
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QMessageBox, QLabel, QVBoxLayout, QProgressBar, QWidget
